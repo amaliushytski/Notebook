@@ -7,7 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,19 +18,27 @@ public class FileNotesDAO implements NotesDAO {
 
 	private List<Note> notes = new ArrayList<Note>();
 
+	private static final String SOURCE_PATH = "/Users/a/my_notebook/src/resources/notes.txt";
+
 	public FileNotesDAO() {
 		try {
-			FileReader fr = new FileReader("/Users/a/my_notebook/src/resources/notes.txt");
+			FileReader fr = new FileReader(SOURCE_PATH);
 			BufferedReader reader = new BufferedReader(fr);
-			String line;
-			while ((line = reader.readLine()) != null) {
-				String[] parts = line.split(";");
-				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-				LocalDateTime dateTime = LocalDateTime.parse(parts[0], formatter);
-				Note x = new Note(dateTime, parts[1], parts[2]);
-				notes.add(x);
+			String newReadLine;
+
+			while ((newReadLine = reader.readLine()) != null) {
+				try {
+					String[] data = newReadLine.split(";");
+					String title = data[1];
+					String content = data[2];
+					LocalDateTime dateTime = LocalDateTime.parse(data[0]);
+					Note x = new Note(dateTime, title, content);
+					notes.add(x);
+				} catch (Exception e) {
+					continue;
+				}
 			}
-			fr.close();
+			reader.close();
 		} catch (IOException ex) {
 			System.out.println(ex.getMessage());
 		}
@@ -44,20 +52,17 @@ public class FileNotesDAO implements NotesDAO {
 	@Override
 	public void save(Note note) {
 		notes.add(note);
-		File myFile = new File("/Users/a/my_notebook/src/resources/notes.txt");
+		File myFile = new File(SOURCE_PATH);
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(myFile, true));
 
-			for (Note Note : notes) {
-				writer.write(note.getDate() + ";" + note.getTitle() + ";" + note.getContent() + "\n");
-			}
+			writer.write(LocalDateTime.now() + ";" + note.getTitle() + ";" + note.getContent() + "\n");
 			writer.flush();
 			writer.close();
 		} catch (IOException ex) {
 			System.out.println(ex.getMessage());
 		}
 
-		// save all list in file
 	}
 
 }
