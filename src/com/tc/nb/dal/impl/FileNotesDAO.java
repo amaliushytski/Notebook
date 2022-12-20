@@ -12,14 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.tc.nb.dal.NotesDAO;
-import com.tc.nb.dal.exception.NotesDataParseException;
+import com.tc.nb.dal.exception.DAOException;
 import com.tc.nb.entity.Note;
 
 public class FileNotesDAO implements NotesDAO {
 
 	private List<Note> notes = new ArrayList<Note>();
 
-	private static final String SOURCE_PATH = "/Users/a/my_notebook/src/resources/notes.txt";
+	private static final String SOURCE_PATH = "./src/resources/notes.txt";
 
 	private static final int CREATION_DATE = 0;
 
@@ -29,7 +29,7 @@ public class FileNotesDAO implements NotesDAO {
 
 	private static final String EMPTY_STRING = "";
 
-	public FileNotesDAO() throws Exception {
+	public FileNotesDAO() throws DAOException {
 		BufferedReader reader = null;
 		FileReader fr = null;
 		try {
@@ -44,35 +44,46 @@ public class FileNotesDAO implements NotesDAO {
 						LocalDateTime dateTime = LocalDateTime.parse(data[CREATION_DATE]);
 						Note x = new Note(dateTime, data[TITLE], data[CONTENT]);
 						notes.add(x);
+
 					}
 				} catch (DateTimeParseException e) {
-					throw new NotesDataParseException("Row can't be empty: " + e.getMessage());
+					throw new DAOException("Row can't be empty: " + e);
 				}
 			}
 		} catch (IOException ex) {
-			System.out.println(ex.getMessage());
+			ex.printStackTrace();
 		} finally {
-			reader.close();
+			try {
+				reader.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
 	@Override
-	public List<Note> load() {
+	public List<Note> load() throws DAOException {
 		return notes;
 	}
 
 	@Override
-	public void save(Note note) {
+	public void save(Note note) throws DAOException {
 		notes.add(note);
 		File myFile = new File(SOURCE_PATH);
+		BufferedWriter writer = null;
 		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(myFile, true));
+			writer = new BufferedWriter(new FileWriter(myFile, true));
 
 			writer.write(LocalDateTime.now() + ";" + note.getTitle() + ";" + note.getContent() + "\n");
 			writer.flush();
-			writer.close();
 		} catch (IOException ex) {
-			System.out.println(ex.getMessage());
+			ex.printStackTrace();
+		} finally {
+			try {
+				writer.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 	}
