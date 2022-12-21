@@ -1,21 +1,25 @@
 package com.tc.nb.dal.exception;
 
-public class NotesDataParseException extends Exception {
+public class DAOException extends Exception {
 
-	public NotesDataParseException(String message) {
+	public DAOException(String message) {
 		super(message);
 	}
 
-	public NotesDataParseException() {
+	public DAOException() {
 		super();
 	}
 
-	public NotesDataParseException(Exception e) {
+	public DAOException(Exception e) {
 		super(e);
 	}
 
-	public NotesDataParseException(String message, Exception e) {
+	public DAOException(String message, Exception e) {
 		super(message, e);
+	}
+
+	public DAOException(Object printStackTrace) {
+		super();
 	}
 
 }
