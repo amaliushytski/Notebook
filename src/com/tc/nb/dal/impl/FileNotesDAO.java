@@ -38,18 +38,18 @@ public class FileNotesDAO implements NotesDAO {
 			String newReadLine;
 
 			while ((newReadLine = reader.readLine()) != null) {
-				try {
-					if (newReadLine != EMPTY_STRING) {
-						String[] data = newReadLine.split(";");
-						LocalDateTime dateTime = LocalDateTime.parse(data[CREATION_DATE]);
-						Note x = new Note(dateTime, data[TITLE], data[CONTENT]);
-						notes.add(x);
 
-					}
-				} catch (DateTimeParseException e) {
-					throw new DAOException("Row can't be empty: " + e);
+				if (newReadLine != EMPTY_STRING) {
+					String[] data = newReadLine.split(";");
+					LocalDateTime dateTime = LocalDateTime.parse(data[CREATION_DATE]);
+					Note note = new Note(dateTime, data[TITLE], data[CONTENT]);
+					notes.add(note);
+
 				}
+
 			}
+		} catch (DateTimeParseException e) {
+			throw new DAOException("Row can't be empty: ", e);
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		} finally {
@@ -73,8 +73,12 @@ public class FileNotesDAO implements NotesDAO {
 		BufferedWriter writer = null;
 		try {
 			writer = new BufferedWriter(new FileWriter(myFile, true));
-
-			writer.write(LocalDateTime.now() + ";" + note.getTitle() + ";" + note.getContent() + "\n");
+			writer.append(LocalDateTime.now().toString());
+			writer.append(";");
+			writer.append(note.getTitle());
+			writer.append(";");
+			writer.append(note.getContent());
+			writer.append("\n");
 			writer.flush();
 		} catch (IOException ex) {
 			ex.printStackTrace();
